@@ -1,4 +1,4 @@
-# fan-rong-ui2
+# mgr-ui
 
 ## Project setup
 ```

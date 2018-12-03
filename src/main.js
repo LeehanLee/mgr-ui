@@ -1,12 +1,25 @@
-import Vue from 'vue'
-import App from './App.vue'
-import router from './router'
-import store from './store'
+import Vue from "vue";
+import App from "./App.vue";
+import router from "./router";
+import store from "./store";
+import ElementUI from "element-ui";
+import _ from "lodash";
+import "element-ui/lib/theme-chalk/index.css";
+import ListService from "./services/ListService";
+import ActionService from "./services/ActionService";
+import { HandleDeleteClick, ToggleEnableAndAlert } from "./services/Utils";
 
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
+Vue.use(ElementUI);
+Vue.prototype._ = _;
+window.ListService = ListService;
+window.ActionService = ActionService;
+window.HandleDeleteClick = HandleDeleteClick;
+window.ToggleEnableAndAlert = ToggleEnableAndAlert;
 
-new Vue({
+window.vm = new Vue({
   router,
   store,
   render: h => h(App)
-}).$mount('#app')
+});
+window.vm.$mount("#app");
