@@ -11,6 +11,19 @@ if (openInfo) {
     openInfo = null;
     localStorage.removeItem("token");
     localStorage.removeItem("openInfo");
+    window.loginMsg = {
+      message: `最近一次登录于 ${moment(openInfo.loginTime).format(
+        "YYYY-MM-DD HH:mm:ss"
+      )}，已过期，请重新登录`,
+      type: "error"
+    };
+  } else {
+    window.loginMsg = {
+      message: `最近一次登录于 ${moment(openInfo.loginTime).format(
+        "YYYY-MM-DD HH:mm:ss"
+      )}`,
+      type: "success"
+    };
   }
 }
 
