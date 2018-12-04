@@ -3,6 +3,10 @@ import * as Promise from "bluebird";
 
 var loading = null;
 const errorHandle = function(error) {
+  if (error.response.status === 403) {
+    window.vm.$store.commit("logout");
+    error.message = "登录已过期，请重新登录！";
+  }
   if (loading) {
     loading.close();
   }

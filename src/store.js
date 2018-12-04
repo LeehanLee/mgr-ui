@@ -6,22 +6,24 @@ Vue.use(Vuex);
 let openInfo = JSON.parse(localStorage.getItem("openInfo"));
 console.log(openInfo);
 if (openInfo) {
-  const d = moment(openInfo.loginTime).add(6, "h");
+  const d = moment(openInfo.loginTime).add(1, "m");
   if (d < new Date()) {
+    const msg = `最近一次登录于 ${moment(openInfo.loginTime).format(
+      "YYYY-MM-DD HH:mm:ss"
+    )}，已过期，请重新登录`;
     openInfo = null;
     localStorage.removeItem("token");
     localStorage.removeItem("openInfo");
     window.loginMsg = {
-      message: `最近一次登录于 ${moment(openInfo.loginTime).format(
-        "YYYY-MM-DD HH:mm:ss"
-      )}，已过期，请重新登录`,
+      message: msg,
       type: "error"
     };
   } else {
+    const msg = `最近一次登录于 ${moment(openInfo.loginTime).format(
+      "YYYY-MM-DD HH:mm:ss"
+    )}`;
     window.loginMsg = {
-      message: `最近一次登录于 ${moment(openInfo.loginTime).format(
-        "YYYY-MM-DD HH:mm:ss"
-      )}`,
+      message: msg,
       type: "success"
     };
   }

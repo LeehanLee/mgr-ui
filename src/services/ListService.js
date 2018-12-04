@@ -58,6 +58,10 @@ ListService.interceptors.response.use(
     return Promise.reject(err);
   },
   function(error) {
+    if (error.response.status === 401) {
+      window.vm.$store.commit("logout");
+      error.message = "登录已过期，请重新登录！";
+    }
     if (_.has(error, "config.vm.loadingMsg")) {
       error.config.vm.loadingMsg = error.message;
     }

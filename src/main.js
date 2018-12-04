@@ -24,5 +24,7 @@ window.vm = new Vue({
 });
 window.vm.$mount("#app");
 
-window.vm.$message(window.loginMsg);
-delete window.loginMsg;
+if (window.loginMsg) {
+  window.vm.$message(window.loginMsg);
+  delete window.loginMsg;
+}
