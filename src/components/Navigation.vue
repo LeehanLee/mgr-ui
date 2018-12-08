@@ -1,6 +1,6 @@
 <template>
   <el-menu ref="menu" :default-active="defaultActive" class="menu-container" :router="true">
-    <div v-for="(menu, index) in menuData" :key="index" :index="`${index}`">
+    <div v-for="(menu, index) in rights" :key="index" :index="`${index}`">
       <el-menu-item v-if="!menu.children" :index="menu.url">{{menu.text}}</el-menu-item>
       <el-submenu v-else :index="`${index}`">
         <template slot="title">
@@ -17,7 +17,7 @@
 </template>
 
 <script>
-
+import pageMaps from "./pageMaps";
 export default {
   components: {},
   data: () => {
@@ -57,8 +57,68 @@ export default {
       ]
     };
   },
-  methods: {},
+  methods: {
+    buildNavTree: function(rights) {
+      if (this._.isEmpty(rights)) {
+        return [];
+      }
+      const mainNavs = this._.filter(rights, r => r.datatype === 0);
+      if (this._.isEmpty(mainNavs)) {
+        return [];
+      }
+
+      return mainNavs.map(element => {
+        const children = this._.filter(
+          rights,
+          r => r.parentid === element.id
+        );
+        if (!this._.isEmpty(children)) {
+          element.children = children.map(c => {
+            return {
+              text: c.name,
+              url: `/${element.id}/${c.id}`
+            };
+          });
+        }
+        return {
+          text: element.name,
+          children: element.children
+        };
+      });
+    },
+    buildRouteTree: function(rights) {
+      if (this._.isEmpty(rights)) {
+        return [];
+      }
+      const routeSource = this._.filter(rights, r => r.datatype === 1);
+      if (this._.isEmpty(routeSource)) {
+        return [];
+      }
+
+      const result = routeSource.map(element => {
+        const parent = this._.find(rights, r => r.id === element.parentid);
+        const path = `/${parent.id}/${element.id}`;
+        // const p = pageMaps[element.id];
+        // const p = `./views${path}.vue`;
+        return {
+          path: path,
+          name: `${element.id}`,
+          component: pageMaps[element.id]
+          // component: () => {
+          //   import(/* webpackChunkName: "about" */ p);
+          // }
+        };
+      });
+      return result;
+    }
+  },
   computed: {
+    rights() {
+      this.$router.addRoutes(
+        this.buildRouteTree(this.$store.state.openInfo.rights)
+      );
+      return this.buildNavTree(this.$store.state.openInfo.rights);
+    },
     defaultActive: function() {
       return this.$router.history.pending
         ? this.$router.history.pending.path

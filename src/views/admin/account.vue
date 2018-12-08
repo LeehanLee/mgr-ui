@@ -10,15 +10,24 @@
       <el-button type="primary" size="small" @click="handleToggleEnableClick(false)">禁用</el-button>
     </el-row>
     <div class="data-content">
-      <Table ref="table" :msg="loadingMsg" :rows="listData" :columns="userColumns" :actions="actions" />
-      <el-pagination @size-change="handlePageSizeChange" @current-change="handleCurrentChange"
+      <Table
+        ref="table"
+        :msg="loadingMsg"
+        :rows="listData"
+        :columns="userColumns"
+        :actions="actions"
+      />
+      <el-pagination
+        @size-change="handlePageSizeChange"
+        @current-change="handleCurrentChange"
         :current-page="currentPage"
         :page-sizes="[10, 20, 50, 100]"
-        :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper"
-        :total="total">
-    </el-pagination>
+        :page-size="pageSize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total"
+      ></el-pagination>
     </div>
-    <el-dialog :modal="false" :title="modalTitle" :visible.sync="userFormVisible">
+    <el-dialog :modal="false" :title="modalTitle" :visible.sync="dtoFormVisible">
       <el-form :model="currentDto" :rules="rules" ref="ruleForm">
         <el-form-item label="用户名" :label-width="formLabelWidth" prop="username">
           <el-input v-model="currentDto.username" autocomplete="off"></el-input>
@@ -29,13 +38,23 @@
         <el-form-item label="电话" :label-width="formLabelWidth" prop="mobile">
           <el-input v-model="currentDto.mobile" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="" :label-width="formLabelWidth" prop="enabled">
+        <el-form-item
+          prop="roleid"
+          v-if="roleList && roleList.length > 0"
+          label="角色"
+          :label-width="formLabelWidth"
+        >
+          <el-select v-model="currentDto.roleid" placeholder="请选择角色">
+            <el-option v-for="item in roleList" :key="item.id" :label="item.name" :value="item.id"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label :label-width="formLabelWidth" prop="enabled">
           <el-checkbox v-model="currentDto.enabled">启用</el-checkbox>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="handleSubmitClick">确定</el-button>
-        <el-button @click="userFormVisible = false">取消</el-button>
+        <el-button @click="dtoFormVisible = false">取消</el-button>
       </div>
     </el-dialog>
   </div>
@@ -54,14 +73,25 @@ export default {
       this.handleListDataReceived
     );
   },
+  watch: {
+    dtoFormVisible: function(newVisible, oldVisible) {
+      const self = this;
+      if (newVisible && this._.isEmpty(this.roleList)) {
+        window.BaseHttpService.get(`/api/role/getList`).then(roleList => {
+          self.roleList = roleList.rows.filter(r => r.enabled);
+        });
+      }
+    }
+  },
   data: function() {
     const self = this;
     return {
+      roleList: [],
       currentPage: 1,
       pageSize: 20,
       total: 0,
       formLabelWidth: "200px",
-      userFormVisible: false,
+      dtoFormVisible: false,
       count: 0,
       currentDto: {},
       rules: {
@@ -92,6 +122,7 @@ export default {
             trigger: "change"
           }
         ],
+        roleid: [{ required: true, message: '请选择角色', trigger: 'change' }],
         gender: [{ required: true, message: "请选择性别", trigger: "change" }]
       },
       currentIndex: -1,
@@ -135,20 +166,26 @@ export default {
           text: "编辑",
           handleClick: function(val) {
             self.currentDto = self._.assign({}, val);
-            self.userFormVisible = true;
+            self.dtoFormVisible = true;
             self.currentIndex = self._.findIndex(self.listData, r =>
               self._.isEqual(r, val)
             );
           }
         },
         {
-          text: "启/禁用",
+          text: "启用",
           width: 100,
           handleClick: function(val) {
-            const url = `/api/account/updateStatus?ids=${
-              val.id
-            }&enabled=${!val.enabled}`;
-            window.ToggleEnableAndAlert(self, url, val, !val.enabled);
+            const url = `/api/account/enable?ids=${val.id}`;
+            window.ToggleEnableAndAlert(self, url, val, true);
+          }
+        },
+        {
+          text: "禁用",
+          width: 100,
+          handleClick: function(val) {
+            const url = `/api/account/disable?ids=${val.id}`;
+            window.ToggleEnableAndAlert(self, url, val, false);
           }
         },
         {
@@ -175,14 +212,14 @@ export default {
             errorMsg: "保存失败"
           }).then(r => {
             self.listData.splice(self.currentIndex, 1, self.currentDto);
-            self.userFormVisible = false;
+            self.dtoFormVisible = false;
           });
         } else {
           window.ActionService.post("/api/account/insert", self.currentDto, {
             successMsg: "添加成功",
             errorMsg: "添加失败"
           }).then(r => {
-            self.userFormVisible = false;
+            self.dtoFormVisible = false;
             self.currentPage = 1;
             window.ListService.get(self.listUrl, { vm: this }).then(
               self.handleListDataReceived
@@ -211,7 +248,7 @@ export default {
       );
     },
     showAddingForm: function() {
-      this.userFormVisible = true;
+      this.dtoFormVisible = true;
       this.currentDto = {};
     },
     handleToggleEnableClick: function(enabled) {

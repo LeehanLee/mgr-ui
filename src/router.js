@@ -20,24 +20,24 @@ const router = new Router({
     //   component: () =>
     //     import(/* webpackChunkName: "about" */ "./views/About.vue")
     // },
-    {
-      path: "/user/list",
-      name: "user",
-      component: () =>
-        import(/* webpackChunkName: "1" */ "./views/user/UserIndex.vue")
-    },
-    {
-      path: "/role/list",
-      name: "role",
-      component: () =>
-        import(/* webpackChunkName: "2" */ "./views/role/RoleIndex.vue")
-    },
-    {
-      path: "/org/list",
-      name: "org",
-      component: () =>
-        import(/* webpackChunkName: "3" */ "./views/org/OrgIndex.vue")
-    }
+    // {
+    //   path: "/user/list",
+    //   name: "user",
+    //   component: () =>
+    //     import(/* webpackChunkName: "1" */ "./views/user/UserIndex.vue")
+    // },
+    // {
+    //   path: "/role/list",
+    //   name: "role",
+    //   component: () =>
+    //     import(/* webpackChunkName: "2" */ "./views/role/RoleIndex.vue")
+    // },
+    // {
+    //   path: "/org/list",
+    //   name: "org",
+    //   component: () =>
+    //     import(/* webpackChunkName: "3" */ "./views/org/OrgIndex.vue")
+    // }
   ]
 });
 router.beforeEach((to, from, next) => {

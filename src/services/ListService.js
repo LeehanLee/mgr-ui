@@ -1,21 +1,17 @@
 import axios from "axios";
 import * as Promise from "bluebird";
 import _ from "lodash";
+import { AppendToHeader } from "./Utils";
 
 const ListService = axios.create({
   baseURL: "/",
-  timeout: 10000,
-  headers: {
-    openInfo: localStorage.getItem("openInfo"),
-    token: localStorage.getItem("token")
-  }
+  timeout: 10000
 });
 var loading = null;
 // Add a request interceptor
 ListService.interceptors.request.use(
   function(config) {
-    config.headers.openInfo = localStorage.getItem("openInfo");
-    config.headers.token = localStorage.getItem("token");
+    AppendToHeader(config);
     if (_.has(config, "vm.loadingMsg")) {
       config.vm.loadingMsg = "正在加载数据...";
     }
@@ -58,7 +54,10 @@ ListService.interceptors.response.use(
     return Promise.reject(err);
   },
   function(error) {
-    if (error.response.status === 401) {
+    if (
+      _.has(error, "response.status") &&
+      _.get(error, "response.status") === 403
+    ) {
       window.vm.$store.commit("logout");
       error.message = "登录已过期，请重新登录！";
     }

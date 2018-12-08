@@ -1,5 +1,6 @@
 import axios from "axios";
 import * as Promise from "bluebird";
+import { AppendToHeader } from "./Utils";
 
 var loading = null;
 const errorHandle = function(error) {
@@ -24,8 +25,7 @@ const ActionService = axios.create({
 
 // Add a request interceptor
 ActionService.interceptors.request.use(function(config) {
-  config.headers.openInfo = localStorage.getItem("openInfo");
-  config.headers.token = localStorage.getItem("token");
+  AppendToHeader(config);
   loading = window.vm.$loading({
     lock: true,
     text: config.loadingMsg ? config.loadingMsg : "正在操作。。。",

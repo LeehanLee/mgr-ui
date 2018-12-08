@@ -13,19 +13,28 @@
       <div v-if="message" class="msg">{{message}}</div>
       <div v-else class="tree-area">
         <el-tree
-            :data="treeData"
-            show-checkbox
-            node-key="id"
-            :check-strictly="true"
-            ref="orgTree"
-            default-expand-all
-            :expand-on-click-node="false">
+          :data="treeData"
+          show-checkbox
+          node-key="id"
+          :check-strictly="true"
+          ref="orgTree"
+          default-expand-all
+          :expand-on-click-node="false"
+        >
           <span class="custom-tree-node" slot-scope="{ node, data }">
-            <span :class="data.enabled ? 'item-enabled': 'item-disabled'">{{ `${data.label}${!data.enabled ? '(已禁用)':''}` }}</span>
+            <span
+              :class="data.enabled ? 'item-enabled': 'item-disabled'"
+            >{{ `${data.label}${!data.enabled ? '(已禁用)':''}` }}</span>
             <span>
               <el-button type="text" size="mini" @click="showAddingForm(data)">添加下级组织</el-button>
               <el-button type="text" size="mini" @click="handleEditClick(node, data)">编辑</el-button>
-              <el-button class="delete-btn" v-if="!data.children || data.children.length <= 0" type="text" size="mini" @click="handleRemoveClick(node, data)">删除</el-button>
+              <el-button
+                class="delete-btn"
+                v-if="!data.children || data.children.length <= 0"
+                type="text"
+                size="mini"
+                @click="handleRemoveClick(node, data)"
+              >删除</el-button>
             </span>
           </span>
         </el-tree>
@@ -33,13 +42,18 @@
     </div>
     <el-dialog :modal="false" :title="modelTitle" :visible.sync="dtoFormVisible">
       <el-form :model="currentDto" :rules="rules" ref="ruleForm">
-        <el-form-item v-if="currentDto.parentid" label="上级组织" :label-width="formLabelWidth" prop="name">
+        <el-form-item
+          v-if="currentDto.parentid"
+          label="上级组织"
+          :label-width="formLabelWidth"
+          prop="name"
+        >
           <span>{{currentDto.parentname}}</span>
         </el-form-item>
         <el-form-item label="组织名" :label-width="formLabelWidth" prop="name">
           <el-input v-model="currentDto.name" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="" :label-width="formLabelWidth" prop="enabled">
+        <el-form-item label :label-width="formLabelWidth" prop="enabled">
           <el-checkbox v-model="currentDto.enabled">启用</el-checkbox>
         </el-form-item>
       </el-form>
@@ -52,7 +66,7 @@
 </template>
 
 <script>
-import { buildTree, findFromTree } from "./Utils";
+import { buildTree, findFromTree } from "../../common/Utils";
 export default {
   created() {
     window.ListService.get(this.listUrl, { vm: this }).then(
@@ -63,7 +77,7 @@ export default {
     return {
       formLabelWidth: "200px",
       dtoFormVisible: false,
-      currentDto: {},
+      currentDto: { enabled: false },
       rules: {
         dtoname: [
           { required: true, message: "请输入组织名", trigger: "change" },

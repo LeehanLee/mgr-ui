@@ -4,9 +4,9 @@ import moment from "moment";
 
 Vue.use(Vuex);
 let openInfo = JSON.parse(localStorage.getItem("openInfo"));
-console.log(openInfo);
 if (openInfo) {
-  const d = moment(openInfo.loginTime).add(1, "m");
+  // const d = moment(openInfo.loginTime).add(1, "m");
+  const d = moment(openInfo.loginTime).add(6, "h");
   if (d < new Date()) {
     const msg = `最近一次登录于 ${moment(openInfo.loginTime).format(
       "YYYY-MM-DD HH:mm:ss"
@@ -35,7 +35,8 @@ export default new Vuex.Store({
   },
   mutations: {
     login(state, response) {
-      const openInfo = atob(response.openInfo);
+      // const openInfo = atob(response.openInfo);
+      const openInfo = response.openInfo;
       const userObj = JSON.parse(openInfo);
       delete userObj.userid;
       delete userObj.openInfo;

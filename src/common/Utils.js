@@ -5,7 +5,8 @@ const buildTreeNode = (node, rows) => {
       return {
         label: row.name,
         value: row.id,
-        enabled: row.enabled
+        enabled: row.enabled,
+        disabled: !row.enabled
       };
     }
   );
@@ -24,7 +25,8 @@ const buildTree = rows => {
     return {
       label: row.name,
       value: row.id,
-      enabled: row.enabled
+      enabled: row.enabled,
+      disabled: !row.enabled
     };
   });
   rootNodes.forEach(node => {

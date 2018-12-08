@@ -1,4 +1,3 @@
-
 const HandleDeleteClick = (vm, url) => {
   vm.$confirm("此数据将永久删除, 是否继续?", "提示", {
     confirmButtonText: "确定",
@@ -29,9 +28,16 @@ const ToggleEnableAndAlert = (vm, url, val, enabled) => {
         const target = vm._.find(vm.listData, r => r.id === val.id);
         target.enabled = enabled;
       } else {
-        window.ListService.get(vm.listUrl, { vm }).then(vm.handleListDataReceived);
+        window.ListService.get(vm.listUrl, { vm }).then(
+          vm.handleListDataReceived
+        );
       }
     }
   });
 };
-export { HandleDeleteClick, ToggleEnableAndAlert };
+
+const AppendToHeader = config => {
+  // config.headers.openInfo = localStorage.getItem("openInfo");
+  config.headers.token = localStorage.getItem("token");
+};
+export { HandleDeleteClick, ToggleEnableAndAlert, AppendToHeader };
