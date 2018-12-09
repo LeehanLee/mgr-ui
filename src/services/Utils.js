@@ -39,7 +39,6 @@ const ToggleEnableAndAlert = (vm, url, ids, val, enabled) => {
 };
 
 const AppendToHeader = config => {
-  // config.headers.openInfo = localStorage.getItem("openInfo");
   config.headers.token = localStorage.getItem("token");
 };
 export { HandleDeleteClick, ToggleEnableAndAlert, AppendToHeader };

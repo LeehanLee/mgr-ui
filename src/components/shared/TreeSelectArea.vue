@@ -1,5 +1,5 @@
 <template>
-  <div class="tree-select-area" :key="key">
+  <div class="tree-select-area" :key="itemKey">
     <el-tag
       :disable-transitions="true"
       type="success"
@@ -42,7 +42,7 @@
 import { buildTree } from "../../common/Utils";
 export default {
   props: {
-    key: String,
+    itemKey: String,
     title: String,
     arrayData: Array,
     selectedIds: Array,

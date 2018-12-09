@@ -5,9 +5,16 @@
       <el-breadcrumb-item>用户列表</el-breadcrumb-item>
     </el-breadcrumb>
     <el-row>
-      <el-button type="primary" size="small" @click="showAddingForm">添加</el-button>
+      <!-- <el-button type="primary" size="small" @click="showAddingForm">添加</el-button>
       <el-button type="primary" size="small" @click="handleToggleEnableClick(true)">启用</el-button>
-      <el-button type="primary" size="small" @click="handleToggleEnableClick(false)">禁用</el-button>
+      <el-button type="primary" size="small" @click="handleToggleEnableClick(false)">禁用</el-button>-->
+      <el-button
+        v-for="(right, index) in pageRights"
+        :key="index"
+        type="primary"
+        size="small"
+        @click="showAddingForm"
+      >{{right.name}}</el-button>
     </el-row>
     <div class="data-content">
       <Table
@@ -307,6 +314,20 @@ export default {
     },
     modalTitle: function() {
       return this._.isEmpty(this.currentDto) ? "添加用户" : "编辑用户";
+    },
+    pageRights: function() {
+      const rs = this._.filter(
+        this.$store.state.openInfo.rights,
+        r => r.parentid === "account" && (r.datatype === 3 || r.datatype === 5)
+      );
+      return rs;
+    },
+    itemRights: function() {
+      const rs = this._.filter(
+        this.$store.state.openInfo.rights,
+        r => r.parentid === "account" && (r.datatype === 4 || r.datatype === 5)
+      );
+      return rs;
     }
   }
 };

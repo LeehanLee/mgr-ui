@@ -34,7 +34,7 @@
         </el-form-item>
         <el-form-item label="权限" :label-width="formLabelWidth" prop="rights">
           <TreeSelectArea
-            :key="currentDto.id"
+            :itemKey="currentDto.id"
             title="请选择权限"
             :arrayData="rights"
             :selectedIds="currentDto.rights"

@@ -80,7 +80,9 @@ export default {
             self.message = "登录成功";
             self.$store.commit("login", result.data.responseModel);
           } else {
-            self.message = "用户名或密码错误";
+            self.message = result.data.message
+              ? result.data.message
+              : "用户名或密码错误";
             self.messageColor = "red";
           }
         })
