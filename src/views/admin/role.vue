@@ -10,20 +10,38 @@
       <el-button type="primary" size="small" @click="handleToggleEnableClick(false)">禁用</el-button>
     </el-row>
     <div class="data-content">
-      <Table ref="table" :msg="loadingMsg" :rows="listData" :columns="dtoColumns" :actions="actions" />
-      <el-pagination @size-change="handlePageSizeChange" @current-change="handleCurrentChange"
+      <Table
+        ref="table"
+        :msg="loadingMsg"
+        :rows="listData"
+        :columns="dtoColumns"
+        :actions="actions"
+      />
+      <el-pagination
+        @size-change="handlePageSizeChange"
+        @current-change="handleCurrentChange"
         :current-page="currentPage"
         :page-sizes="[10, 20, 50, 100]"
-        :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper"
-        :total="total">
-    </el-pagination>
+        :page-size="pageSize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total"
+      ></el-pagination>
     </div>
     <el-dialog :modal="false" :title="modalTitle" :visible.sync="dtoFormVisible">
       <el-form :model="currentDto" :rules="rules" ref="ruleForm">
         <el-form-item label="角色名" :label-width="formLabelWidth" prop="name">
           <el-input v-model="currentDto.name" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="" :label-width="formLabelWidth" prop="enabled">
+        <el-form-item label="权限" :label-width="formLabelWidth" prop="rights">
+          <TreeSelectArea
+            :key="currentDto.id"
+            title="请选择权限"
+            :arrayData="rights"
+            :selectedIds="currentDto.rights"
+            @onYesClick="handleRightsSelected"
+          />
+        </el-form-item>
+        <el-form-item label :label-width="formLabelWidth" prop="enabled">
           <el-checkbox v-model="currentDto.enabled">启用</el-checkbox>
         </el-form-item>
       </el-form>
@@ -37,11 +55,13 @@
 
 <script>
 import Table from "../../components/shared/Table.vue";
+import TreeSelectArea from "../../components/shared/TreeSelectArea.vue";
 import moment from "moment";
 
 export default {
   components: {
-    Table
+    Table,
+    TreeSelectArea
   },
   created() {
     window.ListService.get(this.listUrl, { vm: this }).then(
@@ -59,7 +79,7 @@ export default {
       count: 0,
       currentDto: {},
       rules: {
-        dtoname: [
+        name: [
           { required: true, message: "请输入角色名", trigger: "change" },
           {
             min: 2,
@@ -67,7 +87,8 @@ export default {
             message: "长度在 2 到 16 个字符",
             trigger: "change"
           }
-        ]
+        ],
+        rights: [{ required: true, message: "请选择权限", trigger: "change" }]
       },
       currentIndex: -1,
       dtoColumns: [
@@ -109,13 +130,19 @@ export default {
           }
         },
         {
-          text: "启/禁用",
+          text: "启用",
           width: 100,
           handleClick: function(val) {
-            const url = `/api/role/updateStatus?ids=${
-              val.id
-            }&enabled=${!val.enabled}`;
-            window.ToggleEnableAndAlert(self, url, val, !val.enabled);
+            const url = `/api/role/enable`;
+            window.ToggleEnableAndAlert(self, url, `"${val.id}"`, val, true);
+          }
+        },
+        {
+          text: "禁用",
+          width: 100,
+          handleClick: function(val) {
+            const url = `/api/role/disable`;
+            window.ToggleEnableAndAlert(self, url, `"${val.id}"`, val, false);
           }
         },
         {
@@ -196,9 +223,14 @@ export default {
         });
         return false;
       }
-      const ids = idArrs.join(",");
-      const url = `/api/role/updateStatus?ids=${ids}&enabled=${enabled}`;
-      window.ToggleEnableAndAlert(this, url, null, enabled);
+      const ids = idArrs.map(id => `"${id}"`).join(",");
+      const s = enabled ? "enable" : "disable";
+      const url = `/api/role/${s}`;
+      window.ToggleEnableAndAlert(this, url, ids, null, enabled);
+    },
+    handleRightsSelected: function(selectedIds) {
+      // this.currentDto.rights = selectedIds;
+      this.$set(this.currentDto, "rights", selectedIds);
     }
   },
   computed: {
@@ -209,6 +241,12 @@ export default {
     },
     modalTitle: function() {
       return this._.isEmpty(this.currentDto) ? "添加角色" : "编辑角色";
+    },
+    rights() {
+      return this.$store.state.openInfo.rights.map(r => {
+        r.enabled = true;
+        return r;
+      });
     }
   }
 };

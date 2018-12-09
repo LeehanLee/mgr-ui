@@ -16,11 +16,13 @@ const HandleDeleteClick = (vm, url) => {
   });
 };
 
-const ToggleEnableAndAlert = (vm, url, val, enabled) => {
+const ToggleEnableAndAlert = (vm, url, ids, val, enabled) => {
   const text = enabled ? "启" : "禁";
-  window.ActionService.get(url, {
+  window.ActionService.post(url, `ids=${ids}`, {
     loadingMsg: `正在${text}用。。。`,
-    successMsg: `${val ? val.username : ""} 已${text}用`,
+    successMsg: `${
+      val ? (val.username ? val.username : val.name ? val.name : "") : ""
+    } 已${text}用`,
     errorMsg: `${text}用失败`
   }).then(r => {
     if (r) {

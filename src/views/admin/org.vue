@@ -9,14 +9,14 @@
       <el-button type="primary" size="small" @click="handleToggleEnableClick(true)">启用</el-button>
       <el-button type="primary" size="small" @click="handleToggleEnableClick(false)">禁用</el-button>
     </el-row>
-    <div :class="{'tree-container': true, 'msg-container': !!message}">
+    <div :class="{'tree-container': true, 'org-tree': true, 'msg-container': !!message}">
       <div v-if="message" class="msg">{{message}}</div>
       <div v-else class="tree-area">
         <el-tree
           :data="treeData"
           show-checkbox
           node-key="id"
-          :check-strictly="true"
+          :check-strictly="false"
           ref="orgTree"
           default-expand-all
           :expand-on-click-node="false"
@@ -154,19 +154,20 @@ export default {
       window.HandleDeleteClick(this, url);
     },
     handleToggleEnableClick: function(enabled) {
-      const selectedNodes = this.$refs.orgTree.getCheckedNodes().map(node => {
+      const idArrs = this.$refs.orgTree.getCheckedNodes().map(node => {
         return node.value;
       });
-      if (this._.isEmpty(selectedNodes)) {
+      if (this._.isEmpty(idArrs)) {
         this.$message({
           message: `请先勾选要${enabled ? "启" : "禁"}用的组织`,
           type: "error"
         });
         return false;
       }
-      const ids = selectedNodes.join(",");
-      const url = `/api/org/updateStatus?ids=${ids}&enabled=${enabled}`;
-      window.ToggleEnableAndAlert(this, url, null, enabled);
+      const ids = idArrs.map(id => `"${id}"`).join(",");
+      const s = enabled ? "enable" : "disable";
+      const url = `/api/org/${s}`;
+      window.ToggleEnableAndAlert(this, url, ids, null, enabled);
     }
   },
   computed: {
@@ -181,90 +182,8 @@ export default {
 </script>
 <style lang="less">
 .main-content {
-  margin: 10px 10px 10px 2.5%;
-
-  .tree-container {
-    background: #f2f7ff;
-    box-shadow: 0px 0px 5px #852b99;
-    position: fixed;
-    width: 82%;
-    bottom: 14px;
-    overflow: auto;
-    height: calc(100% - 216px);
-    border: 1px solid #852b99;
-    height: calc(100% - 238px);
-    &.msg-container {
-      justify-content: center;
-      align-items: center;
-      display: flex;
-      .message {
-        margin-top: -30px;
-        font-size: 30px;
-        text-align: center;
-        background: #f4f8ff;
-      }
-    }
-    .tree-area {
-      max-width: 640px;
-      margin: 20px;
-      border: 1px solid lightgray;
-      &.no-data {
-        max-width: none;
-      }
-      .message {
-        font-size: 30px;
-        text-align: center;
-      }
-      .el-tree-node {
-        // background: #b4e8ff;
-        .el-tree-node__content {
-          &:hover {
-            background: #b4e8ff;
-          }
-        }
-      }
-      .custom-tree-node {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        font-size: 14px;
-        padding-right: 8px;
-
-        .item-enabled {
-          color: black;
-        }
-        .item-disabled {
-          color: #b6bfbf;
-        }
-        .el-button--mini {
-          span {
-            color: #0078f5;
-          }
-          &.delete-btn {
-            span {
-              color: #969696;
-            }
-          }
-        }
-      }
-    }
-  }
-
-  .el-breadcrumb {
-    margin-bottom: 14px !important;
-    box-shadow: 0px 0px 5px #888;
-    display: inline-block;
-    border: 1px solid #888;
-    padding: 10px 15px;
-    border-radius: 3px;
-    background: #fafdff;
-
-    .other {
-      .el-breadcrumb__inner {
-        color: #0088cc;
-      }
-    }
+  .org-tree {
+    height: calc(100% - 236px) !important;
   }
 }
 </style>

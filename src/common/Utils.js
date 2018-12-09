@@ -5,8 +5,8 @@ const buildTreeNode = (node, rows) => {
       return {
         label: row.name,
         value: row.id,
-        enabled: row.enabled,
-        disabled: !row.enabled
+        enabled: row.enabled
+        // disabled: !row.enabled
       };
     }
   );
@@ -14,6 +14,8 @@ const buildTreeNode = (node, rows) => {
     node.children.forEach(childNode => {
       buildTreeNode(childNode, rows);
     });
+  } else {
+    delete node.children;
   }
 };
 
@@ -25,8 +27,8 @@ const buildTree = rows => {
     return {
       label: row.name,
       value: row.id,
-      enabled: row.enabled,
-      disabled: !row.enabled
+      enabled: row.enabled
+      // disabled: !row.enabled
     };
   });
   rootNodes.forEach(node => {
@@ -67,4 +69,17 @@ const findFromTree = (treeNodes, id) => {
   return null;
 };
 
-export { buildTree, findFromTree };
+const buildIdPath = (list, id) => {
+  if (_.isEmpty(list) || _.isNil(id)) {
+    return [];
+  }
+  let result = [];
+  let targetOfId = _.find(list, l => l.id === id);
+  while (!_.isEmpty(targetOfId)) {
+    result.unshift(targetOfId.id);
+    targetOfId = _.find(list, l => l.id === targetOfId.parentid);
+  }
+  return result;
+};
+
+export { buildTree, findFromTree, buildIdPath };

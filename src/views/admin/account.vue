@@ -38,12 +38,18 @@
         <el-form-item label="电话" :label-width="formLabelWidth" prop="mobile">
           <el-input v-model="currentDto.mobile" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item
-          prop="roleid"
-          v-if="roleList && roleList.length > 0"
-          label="角色"
-          :label-width="formLabelWidth"
-        >
+        <el-form-item label="组织" :label-width="formLabelWidth" prop="orgid">
+          <el-cascader
+            v-model="selectedOrgIdPath"
+            placeholder="输入即可搜索"
+            :show-all-levels="false"
+            :change-on-select="true"
+            expand-trigger="hover"
+            :options="orgTree"
+            filterable
+          ></el-cascader>
+        </el-form-item>
+        <el-form-item prop="roleid" label="角色" :label-width="formLabelWidth">
           <el-select v-model="currentDto.roleid" placeholder="请选择角色">
             <el-option v-for="item in roleList" :key="item.id" :label="item.name" :value="item.id"></el-option>
           </el-select>
@@ -63,6 +69,7 @@
 <script>
 import Table from "../../components/shared/Table.vue";
 import moment from "moment";
+import { buildTree, buildIdPath } from "../../common/Utils";
 
 export default {
   components: {
@@ -76,16 +83,41 @@ export default {
   watch: {
     dtoFormVisible: function(newVisible, oldVisible) {
       const self = this;
-      if (newVisible && this._.isEmpty(this.roleList)) {
-        window.BaseHttpService.get(`/api/role/getList`).then(roleList => {
-          self.roleList = roleList.rows.filter(r => r.enabled);
-        });
+      if (newVisible) {
+        if (this._.isEmpty(this.roleList)) {
+          window.BaseHttpService.get(`/api/role/getList`).then(roleList => {
+            self.roleList = roleList.rows.filter(r => r.enabled);
+          });
+        }
+        if (this._.isEmpty(this.orgList)) {
+          window.BaseHttpService.get(
+            `/api/org/getList?page=1&pageSize=10000`
+          ).then(orgList => {
+            self.orgList = orgList.rows;
+            self.selectedOrgIdPath = buildIdPath(
+              self.orgList,
+              self.currentDto.orgid
+            );
+            self.orgTree = buildTree(orgList.rows.filter(r => r.enabled));
+          });
+        } else {
+          self.selectedOrgIdPath = buildIdPath(
+            self.orgList,
+            self.currentDto.orgid
+          );
+        }
       }
+    },
+    selectedOrgIdPath: function(newv, oldv) {
+      this.currentDto.orgid = newv[newv.length - 1];
     }
   },
   data: function() {
     const self = this;
     return {
+      selectedOrgIdPath: [],
+      orgTree: [],
+      orgList: [],
       roleList: [],
       currentPage: 1,
       pageSize: 20,
@@ -122,7 +154,8 @@ export default {
             trigger: "change"
           }
         ],
-        roleid: [{ required: true, message: '请选择角色', trigger: 'change' }],
+        orgid: [{ required: true, message: "请选择组织", trigger: "change" }],
+        roleid: [{ required: true, message: "请选择角色", trigger: "change" }],
         gender: [{ required: true, message: "请选择性别", trigger: "change" }]
       },
       currentIndex: -1,
@@ -176,16 +209,16 @@ export default {
           text: "启用",
           width: 100,
           handleClick: function(val) {
-            const url = `/api/account/enable?ids=${val.id}`;
-            window.ToggleEnableAndAlert(self, url, val, true);
+            const url = `/api/account/enable`;
+            window.ToggleEnableAndAlert(self, url, val.id, val, true);
           }
         },
         {
           text: "禁用",
           width: 100,
           handleClick: function(val) {
-            const url = `/api/account/disable?ids=${val.id}`;
-            window.ToggleEnableAndAlert(self, url, val, false);
+            const url = `/api/account/disable`;
+            window.ToggleEnableAndAlert(self, url, val.id, val, false);
           }
         },
         {
@@ -261,8 +294,9 @@ export default {
         return false;
       }
       const idStr = idArrs.join(",");
-      const url = `/api/account/updateStatus?ids=${idStr}&enabled=${enabled}`;
-      window.ToggleEnableAndAlert(this, url, null, enabled);
+      const s = enabled ? "enable" : "disable";
+      const url = `/api/account/${s}`;
+      window.ToggleEnableAndAlert(this, url, idStr, null, enabled);
     }
   },
   computed: {

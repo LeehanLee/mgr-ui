@@ -4,7 +4,7 @@
       <el-breadcrumb-item class="other">权限管理</el-breadcrumb-item>
       <el-breadcrumb-item>权限列表</el-breadcrumb-item>
     </el-breadcrumb>
-    <div :class="{'tree-container': true, 'msg-container': !!message}">
+    <div :class="{'tree-container': true, 'right-tree': true, 'msg-container': !!message}">
       <div v-if="message" class="msg">{{message}}</div>
       <div v-else class="tree-area">
         <el-tree
@@ -49,7 +49,7 @@
         </el-form-item>
         <!-- <el-form-item label :label-width="formLabelWidth" prop="enabled">
           <el-checkbox v-model="currentDto.enabled">启用</el-checkbox>
-        </el-form-item> -->
+        </el-form-item>-->
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="handleSubmitClick">确定</el-button>
@@ -182,87 +182,8 @@ export default {
 .main-content {
   margin: 10px 10px 10px 2.5%;
 
-  .tree-container {
-    background: #f2f7ff;
-    box-shadow: 0px 0px 5px #852b99;
-    position: fixed;
-    width: 82%;
-    bottom: 14px;
-    overflow: auto;
-    border: 1px solid #852b99;
-    height: calc(100% - 182px);
-    &.msg-container {
-      justify-content: center;
-      align-items: center;
-      display: flex;
-      .message {
-        margin-top: -30px;
-        font-size: 30px;
-        text-align: center;
-        background: #f4f8ff;
-      }
-    }
-    .tree-area {
-      max-width: 640px;
-      margin: 20px;
-      border: 1px solid lightgray;
-      &.no-data {
-        max-width: none;
-      }
-      .message {
-        font-size: 30px;
-        text-align: center;
-      }
-      .el-tree-node {
-        // background: #b4e8ff;
-        .el-tree-node__content {
-          &:hover {
-            background: #b4e8ff;
-          }
-        }
-      }
-      .custom-tree-node {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        font-size: 14px;
-        padding-right: 8px;
-
-        .item-enabled {
-          color: black;
-        }
-        .item-disabled {
-          color: #b6bfbf;
-        }
-        .el-button--mini {
-          span {
-            color: #0078f5;
-          }
-          &.delete-btn {
-            span {
-              color: #969696;
-            }
-          }
-        }
-      }
-    }
-  }
-
-  .el-breadcrumb {
-    margin-bottom: 14px !important;
-    box-shadow: 0px 0px 5px #888;
-    display: inline-block;
-    border: 1px solid #888;
-    padding: 10px 15px;
-    border-radius: 3px;
-    background: #fafdff;
-
-    .other {
-      .el-breadcrumb__inner {
-        color: #0088cc;
-      }
-    }
+  .right-tree {
+    height: calc(100% - 182px) !important;
   }
 }
 </style>
