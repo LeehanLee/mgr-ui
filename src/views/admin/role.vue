@@ -5,9 +5,13 @@
       <el-breadcrumb-item>角色列表</el-breadcrumb-item>
     </el-breadcrumb>
     <el-row>
-      <el-button type="primary" size="small" @click="showAddingForm">添加</el-button>
-      <el-button type="primary" size="small" @click="handleToggleEnableClick(true)">启用</el-button>
-      <el-button type="primary" size="small" @click="handleToggleEnableClick(false)">禁用</el-button>
+      <el-button
+        v-for="(right, index) in pageRights"
+        :key="index"
+        type="primary"
+        size="small"
+        @click="getPageButtonFunc(right.id)"
+      >{{right.name}}</el-button>
     </el-row>
     <div class="data-content">
       <Table
@@ -15,11 +19,12 @@
         :msg="loadingMsg"
         :rows="listData"
         :columns="dtoColumns"
-        :actions="actions"
+        :actions="itemRights"
+        :costmerStyle="tableContainerHeight"
       />
       <el-pagination
         @size-change="handlePageSizeChange"
-        @current-change="handleCurrentChange"
+        @current-change="handlePageChange"
         :current-page="currentPage"
         :page-sizes="[10, 20, 50, 100]"
         :page-size="pageSize"
@@ -57,6 +62,7 @@
 import Table from "../../components/shared/Table.vue";
 import TreeSelectArea from "../../components/shared/TreeSelectArea.vue";
 import moment from "moment";
+import { getPageRights, getItemRights } from "../../common/Utils";
 
 export default {
   components: {
@@ -69,7 +75,6 @@ export default {
     );
   },
   data: function() {
-    const self = this;
     return {
       currentPage: 1,
       pageSize: 50,
@@ -117,42 +122,7 @@ export default {
         }
       ],
       loadingMsg: "",
-      listData: [],
-      actions: [
-        {
-          text: "编辑",
-          handleClick: function(val) {
-            self.currentDto = self._.assign({}, val);
-            self.dtoFormVisible = true;
-            self.currentIndex = self._.findIndex(self.listData, r =>
-              self._.isEqual(r, val)
-            );
-          }
-        },
-        {
-          text: "启用",
-          width: 100,
-          handleClick: function(val) {
-            const url = `/api/role/enable`;
-            window.ToggleEnableAndAlert(self, url, `"${val.id}"`, val, true);
-          }
-        },
-        {
-          text: "禁用",
-          width: 100,
-          handleClick: function(val) {
-            const url = `/api/role/disable`;
-            window.ToggleEnableAndAlert(self, url, `"${val.id}"`, val, false);
-          }
-        },
-        {
-          text: "删除",
-          handleClick: function(val) {
-            const url = `/api/role/delete?id=${val.id}`;
-            window.HandleDeleteClick(self, url);
-          }
-        }
-      ]
+      listData: []
     };
   },
   methods: {
@@ -201,7 +171,7 @@ export default {
       this.pageSize = result.pageSize;
       this.total = result.total;
     },
-    handleCurrentChange: function(page) {
+    handlePageChange: function(page) {
       this.currentPage = page;
       this.isLoading = true;
 
@@ -231,6 +201,45 @@ export default {
     handleRightsSelected: function(selectedIds) {
       // this.currentDto.rights = selectedIds;
       this.$set(this.currentDto, "rights", selectedIds);
+    },
+    getPageButtonFunc: function(id) {
+      switch (id) {
+        case "role/insert":
+          return this.showAddingForm();
+        case "role/enable":
+          return this.handleToggleEnableClick(true);
+        case "role/disable":
+          return this.handleToggleEnableClick(false);
+      }
+    },
+    getItemButtonFunc: function(id) {
+      const self = this;
+      switch (id) {
+        case "role/update":
+          return function(val) {
+            self.currentDto = self._.assign({}, val);
+            self.dtoFormVisible = true;
+            self.currentIndex = self._.findIndex(self.listData, r =>
+              self._.isEqual(r, val)
+            );
+          };
+        case "role/enable":
+          return this.getToggleEnableAndAlertFunc(self, true);
+        case "role/disable":
+          return this.getToggleEnableAndAlertFunc(self, false);
+        case "role/delete":
+          return function(val) {
+            const url = `/api/role/delete?id="${val.id}"`;
+            window.HandleDeleteClick(self, url);
+          };
+      }
+    },
+    getToggleEnableAndAlertFunc: function(self, enable) {
+      return function(val) {
+        const s = enable ? "enable" : "disable";
+        const url = `/api/role/${s}`;
+        window.ToggleEnableAndAlert(self, url, `"${val.id}"`, val, enable);
+      };
     }
   },
   computed: {
@@ -247,6 +256,24 @@ export default {
         r.enabled = true;
         return r;
       });
+    },
+    pageRights: function() {
+      return getPageRights(this.$store, "role");
+    },
+    itemRights: function() {
+      const rs = getItemRights(this.$store, "role").map(r => {
+        return {
+          text: r.name,
+          handleClick: this.getItemButtonFunc(r.id)
+        };
+      });
+      return rs;
+    },
+    tableContainerHeight: function() {
+      const height = this._.isEmpty(this.pageRights)
+        ? "calc(100% - 212px)"
+        : "calc(100% - 270px)";
+      return { height };
     }
   }
 };

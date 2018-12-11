@@ -1,27 +1,37 @@
 <template>
-  <div :class="getContainerClass()" :key="JSON.stringify(rows)">
+  <div :class="getContainerClass()" :style="costmerStyle" :key="JSON.stringify(rows)">
     <div v-if="msg" class="no-data">{{msg}}</div>
     <div v-else-if="!rows || rows.length<=0" class="no-data">Sorry, no data yet.</div>
     <table v-else class="basic-table">
       <thead>
-          <tr class="title">
-              <th class="selected-column"><el-checkbox class="select" @change="allSelectedChange"/></th>
-              <th v-for="(column, cindex) in columns" :key="cindex">{{column.text}}</th>
-              <th :style="actionsColumnWidth">操作</th>
-          </tr>
+        <tr class="title">
+          <th class="selected-column">
+            <el-checkbox class="select" @change="allSelectedChange"/>
+          </th>
+          <th v-for="(column, cindex) in columns" :key="cindex">{{column.text}}</th>
+          <th v-if="actions && actions.length > 0" :style="actionsColumnWidth">操作</th>
+        </tr>
       </thead>
       <tbody>
-          <tr class="row" v-for="(row, rindex) in rows" :key="rindex">
-              <td class="selected-column"><el-checkbox class="select" v-model="selectedByIndex[rindex]" /></td>
-              <td v-for="(column, cindex) in columns" :key="cindex" :style="column.style?column.style(row.enabled): ''">
-                {{column.render?column.render(row[column.dataIndex]) : row[column.dataIndex]}}
-              </td>
-              <td>
-                <el-button size="small" type="primary" v-for="(action, aindex) in actions" :key="aindex" @click="action.handleClick(row)">
-                  {{action.text}}
-                </el-button>
-              </td>
-          </tr>
+        <tr class="row" v-for="(row, rindex) in rows" :key="rindex">
+          <td class="selected-column">
+            <el-checkbox class="select" v-model="selectedByIndex[rindex]"/>
+          </td>
+          <td
+            v-for="(column, cindex) in columns"
+            :key="cindex"
+            :style="column.style?column.style(row.enabled): ''"
+          >{{column.render?column.render(row[column.dataIndex]) : row[column.dataIndex]}}</td>
+          <td v-if="actions && actions.length > 0">
+            <el-button
+              size="small"
+              type="primary"
+              v-for="(action, aindex) in actions"
+              :key="aindex"
+              @click="action.handleClick(row)"
+            >{{action.text}}</el-button>
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>
@@ -33,7 +43,8 @@ export default {
     msg: String,
     columns: Array,
     rows: Array,
-    actions: Array
+    actions: Array,
+    costmerStyle: Object
   },
   data: function() {
     return {

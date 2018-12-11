@@ -5,15 +5,12 @@
       <el-breadcrumb-item>用户列表</el-breadcrumb-item>
     </el-breadcrumb>
     <el-row>
-      <!-- <el-button type="primary" size="small" @click="showAddingForm">添加</el-button>
-      <el-button type="primary" size="small" @click="handleToggleEnableClick(true)">启用</el-button>
-      <el-button type="primary" size="small" @click="handleToggleEnableClick(false)">禁用</el-button>-->
       <el-button
         v-for="(right, index) in pageRights"
         :key="index"
         type="primary"
         size="small"
-        @click="showAddingForm"
+        @click="getPageButtonFunc(right.id)"
       >{{right.name}}</el-button>
     </el-row>
     <div class="data-content">
@@ -22,11 +19,12 @@
         :msg="loadingMsg"
         :rows="listData"
         :columns="userColumns"
-        :actions="actions"
+        :actions="itemRights"
+        :costmerStyle="tableContainerHeight"
       />
       <el-pagination
         @size-change="handlePageSizeChange"
-        @current-change="handleCurrentChange"
+        @current-change="handlePageChange"
         :current-page="currentPage"
         :page-sizes="[10, 20, 50, 100]"
         :page-size="pageSize"
@@ -76,7 +74,12 @@
 <script>
 import Table from "../../components/shared/Table.vue";
 import moment from "moment";
-import { buildTree, buildIdPath } from "../../common/Utils";
+import {
+  buildTree,
+  buildIdPath,
+  getPageRights,
+  getItemRights
+} from "../../common/Utils";
 
 export default {
   components: {
@@ -120,7 +123,6 @@ export default {
     }
   },
   data: function() {
-    const self = this;
     return {
       selectedOrgIdPath: [],
       orgTree: [],
@@ -180,6 +182,14 @@ export default {
           dataIndex: "mobile"
         },
         {
+          text: "组织",
+          dataIndex: "orgName"
+        },
+        {
+          text: "角色",
+          dataIndex: "roleName"
+        },
+        {
           text: "添加日期",
           dataIndex: "created",
           render: function(val) {
@@ -200,42 +210,7 @@ export default {
         }
       ],
       loadingMsg: "",
-      listData: [],
-      actions: [
-        {
-          text: "编辑",
-          handleClick: function(val) {
-            self.currentDto = self._.assign({}, val);
-            self.dtoFormVisible = true;
-            self.currentIndex = self._.findIndex(self.listData, r =>
-              self._.isEqual(r, val)
-            );
-          }
-        },
-        {
-          text: "启用",
-          width: 100,
-          handleClick: function(val) {
-            const url = `/api/account/enable`;
-            window.ToggleEnableAndAlert(self, url, val.id, val, true);
-          }
-        },
-        {
-          text: "禁用",
-          width: 100,
-          handleClick: function(val) {
-            const url = `/api/account/disable`;
-            window.ToggleEnableAndAlert(self, url, val.id, val, false);
-          }
-        },
-        {
-          text: "删除",
-          handleClick: function(val) {
-            const url = `/api/account/delete?id=${val.id}`;
-            window.HandleDeleteClick(self, url);
-          }
-        }
-      ]
+      listData: []
     };
   },
   methods: {
@@ -251,6 +226,9 @@ export default {
             successMsg: "保存成功",
             errorMsg: "保存失败"
           }).then(r => {
+            self.currentDto.orgName = self.orgList.find(
+              o => o.id === self.currentDto.orgid
+            ).name;
             self.listData.splice(self.currentIndex, 1, self.currentDto);
             self.dtoFormVisible = false;
           });
@@ -281,7 +259,7 @@ export default {
       this.pageSize = result.pageSize;
       this.total = result.total;
     },
-    handleCurrentChange: function(page) {
+    handlePageChange: function(page) {
       this.currentPage = page;
       window.ListService.get(this.listUrl, { vm: this }).then(
         this.handleListDataReceived
@@ -304,6 +282,45 @@ export default {
       const s = enabled ? "enable" : "disable";
       const url = `/api/account/${s}`;
       window.ToggleEnableAndAlert(this, url, idStr, null, enabled);
+    },
+    getPageButtonFunc: function(id) {
+      switch (id) {
+        case "account/insert":
+          return this.showAddingForm();
+        case "account/enable":
+          return this.handleToggleEnableClick(true);
+        case "account/disable":
+          return this.handleToggleEnableClick(false);
+      }
+    },
+    getItemButtonFunc: function(id) {
+      const self = this;
+      switch (id) {
+        case "account/update":
+          return function(val) {
+            self.currentDto = self._.assign({}, val);
+            self.dtoFormVisible = true;
+            self.currentIndex = self._.findIndex(self.listData, r =>
+              self._.isEqual(r, val)
+            );
+          };
+        case "account/enable":
+          return this.getToggleEnableAndAlertFunc(self, true);
+        case "account/disable":
+          return this.getToggleEnableAndAlertFunc(self, false);
+        case "account/delete":
+          return function(val) {
+            const url = `/api/account/delete?id=${val.id}`;
+            window.HandleDeleteClick(self, url);
+          };
+      }
+    },
+    getToggleEnableAndAlertFunc: function(self, enable) {
+      return function(val) {
+        const s = enable ? "enable" : "disable";
+        const url = `/api/account/${s}`;
+        window.ToggleEnableAndAlert(self, url, val.id, val, enable);
+      };
     }
   },
   computed: {
@@ -316,18 +333,22 @@ export default {
       return this._.isEmpty(this.currentDto) ? "添加用户" : "编辑用户";
     },
     pageRights: function() {
-      const rs = this._.filter(
-        this.$store.state.openInfo.rights,
-        r => r.parentid === "account" && (r.datatype === 3 || r.datatype === 5)
-      );
-      return rs;
+      return getPageRights(this.$store, "account");
     },
     itemRights: function() {
-      const rs = this._.filter(
-        this.$store.state.openInfo.rights,
-        r => r.parentid === "account" && (r.datatype === 4 || r.datatype === 5)
-      );
+      const rs = getItemRights(this.$store, "account").map(r => {
+        return {
+          text: r.name,
+          handleClick: this.getItemButtonFunc(r.id)
+        };
+      });
       return rs;
+    },
+    tableContainerHeight: function() {
+      const height = this._.isEmpty(this.pageRights)
+        ? "calc(100% - 212px)"
+        : "calc(100% - 270px)";
+      return { height };
     }
   }
 };

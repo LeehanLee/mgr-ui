@@ -82,4 +82,20 @@ const buildIdPath = (list, id) => {
   return result;
 };
 
-export { buildTree, findFromTree, buildIdPath };
+const getPageRights = (store, page) => {
+  const rs = _.filter(
+    store.state.openInfo.rights,
+    r => r.parentid === page && (r.datatype === 3 || r.datatype === 5)
+  );
+  return rs;
+};
+
+const getItemRights = (store, page) => {
+  const rs = _.filter(
+    store.state.openInfo.rights,
+    r => r.parentid === page && (r.datatype === 4 || r.datatype === 5)
+  );
+  return rs;
+};
+
+export { buildTree, findFromTree, buildIdPath, getPageRights, getItemRights };
