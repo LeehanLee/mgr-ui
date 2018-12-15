@@ -20,7 +20,7 @@
         :rows="listData"
         :columns="userColumns"
         :actions="itemRights"
-        :costmerStyle="tableContainerHeight"
+        :costmerStyle="containerHeight"
       />
       <el-pagination
         @size-change="handlePageSizeChange"
@@ -344,7 +344,7 @@ export default {
       });
       return rs;
     },
-    tableContainerHeight: function() {
+    containerHeight: function() {
       const height = this._.isEmpty(this.pageRights)
         ? "calc(100% - 212px)"
         : "calc(100% - 270px)";

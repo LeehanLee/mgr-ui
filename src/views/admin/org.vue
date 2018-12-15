@@ -5,11 +5,18 @@
       <el-breadcrumb-item>组织列表</el-breadcrumb-item>
     </el-breadcrumb>
     <el-row>
-      <el-button type="primary" size="small" @click="showAddingForm">添加顶级组织</el-button>
-      <el-button type="primary" size="small" @click="handleToggleEnableClick(true)">启用</el-button>
-      <el-button type="primary" size="small" @click="handleToggleEnableClick(false)">禁用</el-button>
+      <el-button
+        v-for="(right, index) in pageRights"
+        :key="index"
+        type="primary"
+        size="small"
+        @click="getPageButtonFunc(right.id)"
+      >{{right.name}}</el-button>
     </el-row>
-    <div :class="{'tree-container': true, 'org-tree': true, 'msg-container': !!message}">
+    <div
+      :class="{'tree-container': true, 'org-tree': true, 'msg-container': !!message}"
+      :style="containerHeight"
+    >
       <div v-if="message" class="msg">{{message}}</div>
       <div v-else class="tree-area">
         <el-tree
@@ -26,7 +33,16 @@
               :class="data.enabled ? 'item-enabled': 'item-disabled'"
             >{{ `${data.label}${!data.enabled ? '(已禁用)':''}` }}</span>
             <span>
-              <el-button type="text" size="mini" @click="showAddingForm(data)">添加下级组织</el-button>
+              <el-button
+                v-for="(right) in itemRights"
+                :key="right.id"
+                type="text"
+                size="mini"
+                :class="{'delete-btn': right.id.indexOf('delete') >= 0}"
+                v-if="showItemBtn(right, data)"
+                @click="right.handleClick(data)"
+              >{{right.text}}</el-button>
+              <!-- <el-button type="text" size="mini" @click="showAddingForm(data)">添加下级组织</el-button>
               <el-button type="text" size="mini" @click="handleEditClick(node, data)">编辑</el-button>
               <el-button
                 class="delete-btn"
@@ -34,7 +50,7 @@
                 type="text"
                 size="mini"
                 @click="handleRemoveClick(node, data)"
-              >删除</el-button>
+              >删除</el-button>-->
             </span>
           </span>
         </el-tree>
@@ -66,7 +82,12 @@
 </template>
 
 <script>
-import { buildTree, findFromTree } from "../../common/Utils";
+import {
+  buildTree,
+  findFromTree,
+  getPageRights,
+  getItemRights
+} from "../../common/Utils";
 export default {
   created() {
     window.ListService.get(this.listUrl, { vm: this }).then(
@@ -168,6 +189,51 @@ export default {
       const s = enabled ? "enable" : "disable";
       const url = `/api/org/${s}`;
       window.ToggleEnableAndAlert(this, url, ids, null, enabled);
+    },
+    getPageButtonFunc: function(id) {
+      switch (id) {
+        case "org/insert":
+          return this.showAddingForm();
+        case "org/enable":
+          return this.handleToggleEnableClick(true);
+        case "org/disable":
+          return this.handleToggleEnableClick(false);
+      }
+    },
+    getItemButtonFunc: function(id) {
+      const self = this;
+      switch (id) {
+        case "org/update":
+          return function(val) {
+            self.currentDto = self._.assign({}, val);
+            self.dtoFormVisible = true;
+            self.currentIndex = self._.findIndex(self.listData, r =>
+              self._.isEqual(r, val)
+            );
+          };
+        case "org/enable":
+          return this.getToggleEnableAndAlertFunc(self, true);
+        case "org/disable":
+          return this.getToggleEnableAndAlertFunc(self, false);
+        case "org/delete":
+          return function(val) {
+            const url = `/api/org/delete?id=${val.value}`;
+            window.HandleDeleteClick(self, url);
+          };
+      }
+    },
+    getToggleEnableAndAlertFunc: function(self, enable) {
+      return function(val) {
+        const s = enable ? "enable" : "disable";
+        const url = `/api/org/${s}`;
+        window.ToggleEnableAndAlert(self, url, val.value, null, enable);
+      };
+    },
+    showItemBtn: function(right, data) {
+      if (right.id.indexOf("delete") >= 0) {
+        return !data.children || data.children.length <= 0;
+      }
+      return true;
     }
   },
   computed: {
@@ -176,14 +242,28 @@ export default {
     },
     modelTitle: function() {
       return !this.currentDto.id ? "添加组织" : "编辑组织";
+    },
+    pageRights: function() {
+      return getPageRights(this.$store, "org");
+    },
+    itemRights: function() {
+      const rs = getItemRights(this.$store, "org").map(r => {
+        return {
+          text: r.name,
+          id: r.id,
+          handleClick: this.getItemButtonFunc(r.id)
+        };
+      });
+      return rs;
+    },
+    containerHeight: function() {
+      const height = this._.isEmpty(this.pageRights)
+        ? "calc(100% - 180px)"
+        : "calc(100% - 236px)";
+      return { height };
     }
   }
 };
 </script>
 <style lang="less">
-.main-content {
-  .org-tree {
-    height: calc(100% - 236px) !important;
-  }
-}
 </style>
