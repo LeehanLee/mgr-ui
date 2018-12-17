@@ -82,18 +82,18 @@ const buildIdPath = (list, id) => {
   return result;
 };
 
-const getPageRights = (store, page) => {
+const getPageRights = (store, page, dataTypes = [3, 5]) => {
   const rs = _.filter(
     store.state.openInfo.rights,
-    r => r.parentid === page && (r.datatype === 3 || r.datatype === 5)
+    r => r.parentid === page && _.includes(dataTypes, r.datatype)
   );
   return rs;
 };
 
-const getItemRights = (store, page) => {
+const getItemRights = (store, page, dataTypes = [4, 5]) => {
   const rs = _.filter(
     store.state.openInfo.rights,
-    r => r.parentid === page && (r.datatype === 4 || r.datatype === 5)
+    r => r.parentid === page && _.includes(dataTypes, r.datatype)
   );
   return rs;
 };

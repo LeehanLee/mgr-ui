@@ -42,15 +42,6 @@
                 v-if="showItemBtn(right, data)"
                 @click="right.handleClick(data)"
               >{{right.text}}</el-button>
-              <!-- <el-button type="text" size="mini" @click="showAddingForm(data)">添加下级组织</el-button>
-              <el-button type="text" size="mini" @click="handleEditClick(node, data)">编辑</el-button>
-              <el-button
-                class="delete-btn"
-                v-if="!data.children || data.children.length <= 0"
-                type="text"
-                size="mini"
-                @click="handleRemoveClick(node, data)"
-              >删除</el-button>-->
             </span>
           </span>
         </el-tree>
@@ -110,9 +101,9 @@ export default {
           }
         ]
       },
-      currentIndex: -1,
       message: "",
-      treeData: []
+      treeData: [],
+      listData: []
     };
   },
   methods: {
@@ -148,6 +139,7 @@ export default {
       });
     },
     handleListDataReceived: function(result) {
+      this.listData = result.rows;
       this.treeData = buildTree(result.rows);
       if (this._.isEmpty(result.rows)) {
         this.message = "No data yet.";
@@ -200,16 +192,24 @@ export default {
           return this.handleToggleEnableClick(false);
       }
     },
-    getItemButtonFunc: function(id) {
+    getItemButtonFunc: function(rightid) {
       const self = this;
-      switch (id) {
+      switch (rightid) {
+        case "org/insert":
+          return function(val) {
+            const parent = self._.find(self.listData, o => self._.isEqual(o.id, val.value));
+            self.showAddingForm(
+              {
+                value: parent.id,
+                label: parent.name
+              }
+            );
+          };
         case "org/update":
           return function(val) {
-            self.currentDto = self._.assign({}, val);
+            const target = self._.find(self.listData, o => self._.isEqual(o.id, val.value));
+            self.currentDto = self._.assign({}, target);
             self.dtoFormVisible = true;
-            self.currentIndex = self._.findIndex(self.listData, r =>
-              self._.isEqual(r, val)
-            );
           };
         case "org/enable":
           return this.getToggleEnableAndAlertFunc(self, true);
@@ -247,7 +247,7 @@ export default {
       return getPageRights(this.$store, "org");
     },
     itemRights: function() {
-      const rs = getItemRights(this.$store, "org").map(r => {
+      const rs = getItemRights(this.$store, "org", [3, 4, 5]).map(r => {
         return {
           text: r.name,
           id: r.id,
