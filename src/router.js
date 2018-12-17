@@ -1,9 +1,8 @@
-import Vue from "vue";
+// import Vue from "vue";
 import Router from "vue-router";
-// import Home from "./views/Home.vue";
-// import Auth from "./Auth.js";
+// import About from "./About.vue";
 
-Vue.use(Router);
+// Vue.use(Router);
 const router = new Router({
   routes: [
     // {
@@ -17,30 +16,33 @@ const router = new Router({
     //   // route level code-splitting
     //   // this generates a separate chunk (about.[hash].js) for this route
     //   // which is lazy-loaded when the route is visited.
-    //   component: () =>
-    //     import(/* webpackChunkName: "about" */ "./views/About.vue")
+    //   // component: () => import(/* webpackChunkName: "about" */ "./About.vue")
+    //   component: About
     // },
-    // {
-    //   path: "/user/list",
-    //   name: "user",
-    //   component: () =>
-    //     import(/* webpackChunkName: "1" */ "./views/user/UserIndex.vue")
-    // },
-    // {
-    //   path: "/role/list",
-    //   name: "role",
-    //   component: () =>
-    //     import(/* webpackChunkName: "2" */ "./views/role/RoleIndex.vue")
-    // },
-    // {
-    //   path: "/org/list",
-    //   name: "org",
-    //   component: () =>
-    //     import(/* webpackChunkName: "3" */ "./views/org/OrgIndex.vue")
-    // }
+    {
+      path: "/admin/account",
+      name: "account",
+      component: () =>
+        import(/* webpackChunkName: "account" */ "./views/admin/account.vue")
+    },
+    {
+      path: "/admin/org",
+      name: "org",
+      component: () =>
+        import(/* webpackChunkName: "org" */ "./views/admin/org.vue")
+    },
+    {
+      path: "/admin/right",
+      name: "right",
+      component: () =>
+        import(/* webpackChunkName: "right" */ "./views/admin/right.vue")
+    },
+    {
+      path: "/admin/role",
+      name: "role",
+      component: () =>
+        import(/* webpackChunkName: "role" */ "./views/admin/role.vue")
+    }
   ]
-});
-router.beforeEach((to, from, next) => {
-  next();
 });
 export default router;

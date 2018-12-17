@@ -17,44 +17,44 @@
 </template>
 
 <script>
-import pageMaps from "./pageMaps";
+// import pageMaps from "./pageMaps";
 export default {
   components: {},
   data: () => {
     return {
-      menuData: [
-        {
-          text: "用户管理",
-          children: [
-            {
-              text: "用户列表",
-              url: "/user/list"
-            },
-            {
-              text: "用户日志",
-              url: "/user/logs"
-            }
-          ]
-        },
-        {
-          text: "组织管理",
-          children: [
-            {
-              text: "组织列表",
-              url: "/org/list"
-            }
-          ]
-        },
-        {
-          text: "角色管理",
-          children: [
-            {
-              text: "角色列表",
-              url: "/role/list"
-            }
-          ]
-        }
-      ]
+      // menuData: [
+      //   {
+      //     text: "用户管理",
+      //     children: [
+      //       {
+      //         text: "用户列表",
+      //         url: "/user/list"
+      //       },
+      //       {
+      //         text: "用户日志",
+      //         url: "/user/logs"
+      //       }
+      //     ]
+      //   },
+      //   {
+      //     text: "组织管理",
+      //     children: [
+      //       {
+      //         text: "组织列表",
+      //         url: "/org/list"
+      //       }
+      //     ]
+      //   },
+      //   {
+      //     text: "角色管理",
+      //     children: [
+      //       {
+      //         text: "角色列表",
+      //         url: "/role/list"
+      //       }
+      //     ]
+      //   }
+      // ]
     };
   },
   methods: {
@@ -85,38 +85,38 @@ export default {
           children: element.children
         };
       });
-    },
-    buildRouteTree: function(rights) {
-      if (this._.isEmpty(rights)) {
-        return [];
-      }
-      const routeSource = this._.filter(rights, r => r.datatype === 1);
-      if (this._.isEmpty(routeSource)) {
-        return [];
-      }
-
-      const result = routeSource.map(element => {
-        const parent = this._.find(rights, r => r.id === element.parentid);
-        const path = `/${parent.id}/${element.id}`;
-        // const p = pageMaps[element.id];
-        // const p = `./views${path}.vue`;
-        return {
-          path: path,
-          name: `${element.id}`,
-          component: pageMaps[element.id]
-          // component: () => {
-          //   import(/* webpackChunkName: "about" */ p);
-          // }
-        };
-      });
-      return result;
     }
+    // buildRouteTree: function(rights) {
+    //   if (this._.isEmpty(rights)) {
+    //     return [];
+    //   }
+    //   const routeSource = this._.filter(rights, r => r.datatype === 1);
+    //   if (this._.isEmpty(routeSource)) {
+    //     return [];
+    //   }
+
+    //   const result = routeSource.map(element => {
+    //     const parent = this._.find(rights, r => r.id === element.parentid);
+    //     const path = `/${parent.id}/${element.id}`;
+    //     // const p = pageMaps[element.id];
+    //     // const p = `./views${path}.vue`;
+    //     return {
+    //       path: path,
+    //       name: `${element.id}`,
+    //       component: pageMaps[element.id]
+    //       // component: () => {
+    //       //   import(/* webpackChunkName: "about" */ p);
+    //       // }
+    //     };
+    //   });
+    //   return result;
+    // }
   },
   computed: {
     rights() {
-      this.$router.addRoutes(
-        this.buildRouteTree(this.$store.state.openInfo.rights)
-      );
+      // this.$router.addRoutes(
+      //   this.buildRouteTree(this.$store.state.openInfo.rights)
+      // );
       return this.buildNavTree(this.$store.state.openInfo.rights);
     },
     defaultActive: function() {

@@ -1,7 +1,8 @@
 const gulp = require("gulp");
 const del = require("del");
-const assetDest = "E:\\StsWorkspace\\FanRong\\src\\main\\resources\\static";
-const pageDest = "E:\\StsWorkspace\\FanRong\\src\\main\\resources\\templates";
+const path = require("path");
+const assetDest = "E:\\StsWorkspace\\mgr\\src\\main\\resources\\static";
+const pageDest = "E:\\StsWorkspace\\mgr\\src\\main\\resources\\templates";
 
 function clean() {
   return del([assetDest], { force: true });
@@ -13,6 +14,7 @@ function copyAsset() {
       "./dist/**/*.ttf",
       "./dist/**/*.woff",
       "./dist/**/*.png",
+      "./dist/**/*.jpg",
       "./dist/**/*.js",
       "./dist/**/*.js.map"
     ])

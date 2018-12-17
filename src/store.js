@@ -1,8 +1,8 @@
-import Vue from "vue";
+// import Vue from "vue";
 import Vuex from "vuex";
 import moment from "moment";
 
-Vue.use(Vuex);
+// Vue.use(Vuex);
 let openInfo = JSON.parse(localStorage.getItem("openInfo"));
 if (openInfo) {
   // const d = moment(openInfo.loginTime).add(1, "m");
