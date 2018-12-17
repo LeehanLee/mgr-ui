@@ -197,18 +197,27 @@ export default {
       switch (rightid) {
         case "org/insert":
           return function(val) {
-            const parent = self._.find(self.listData, o => self._.isEqual(o.id, val.value));
-            self.showAddingForm(
-              {
-                value: parent.id,
-                label: parent.name
-              }
+            const parent = self._.find(self.listData, o =>
+              self._.isEqual(o.id, val.value)
             );
+            self.showAddingForm({
+              value: parent.id,
+              label: parent.name
+            });
           };
         case "org/update":
           return function(val) {
-            const target = self._.find(self.listData, o => self._.isEqual(o.id, val.value));
-            self.currentDto = self._.assign({}, target);
+            const target = self._.find(self.listData, o =>
+              self._.isEqual(o.id, val.value)
+            );
+            const parent = self._.find(self.listData, o =>
+              self._.isEqual(o.id, target.parentid)
+            );
+
+            self.currentDto = self._.assign({}, target, {
+              parentname: parent ? parent.name : "无",
+              parentid: parent ? parent.id : null
+            });
             self.dtoFormVisible = true;
           };
         case "org/enable":
@@ -232,6 +241,12 @@ export default {
     showItemBtn: function(right, data) {
       if (right.id.indexOf("delete") >= 0) {
         return !data.children || data.children.length <= 0;
+      }
+      if (right.id.indexOf("enable") >= 0) {
+        return !data.enabled;
+      }
+      if (right.id.indexOf("disable") >= 0) {
+        return data.enabled;
       }
       return true;
     }
