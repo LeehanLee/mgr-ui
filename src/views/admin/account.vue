@@ -38,7 +38,7 @@
           <el-input v-model="currentDto.username" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="密码" :label-width="formLabelWidth" prop="password">
-          <el-input v-model="currentDto.password" autocomplete="off"></el-input>
+          <el-input type="password" v-model="currentDto.password" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="电话" :label-width="formLabelWidth" prop="mobile">
           <el-input v-model="currentDto.mobile" autocomplete="off"></el-input>
@@ -174,10 +174,6 @@ export default {
           dataIndex: "username"
         },
         {
-          text: "密码",
-          dataIndex: "password"
-        },
-        {
           text: "电话",
           dataIndex: "mobile"
         },
@@ -197,7 +193,7 @@ export default {
           }
         },
         {
-          text: "启用",
+          text: "状态",
           dataIndex: "enabled",
           render: function(val) {
             return val ? "启用" : "禁用";

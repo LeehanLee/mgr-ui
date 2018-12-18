@@ -210,6 +210,9 @@ body {
     &:hover {
       background: #04c;
     }
+    &:focus {
+      background: #005bcc;
+    }
   }
 }
 </style>
