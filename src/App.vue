@@ -70,11 +70,15 @@ body {
       }
     }
   }
-  .el-dialog {
-    background: #e9f2ff;
-    box-shadow: 0px 0px 5px black;
-    .el-dialog__header {
-      background: #cce0fd;
+  .el-dialog__wrapper {
+    background: rgba(255, 255, 255, 0.5);
+    .el-dialog {
+      background: #e9f2ff;
+      box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.5);
+
+      .el-dialog__header {
+        background: #cce0fd;
+      }
     }
   }
 
@@ -187,28 +191,29 @@ body {
 
   .el-button--primary {
     color: #fff;
+    border-radius: 0;
     text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
     background-color: #006dcc;
-    *background-color: #04c;
-    background-image: -moz-linear-gradient(top, #08c, #04c);
+    // *background-color: #05c;
+    background-image: -moz-linear-gradient(top, #08c, #05c);
     background-image: -webkit-gradient(
       linear,
       0 0,
       0 100%,
       from(#08c),
-      to(#04c)
+      to(#05c)
     );
-    background-image: -webkit-linear-gradient(top, #08c, #04c);
-    background-image: -o-linear-gradient(top, #08c, #04c);
-    background-image: linear-gradient(to bottom, #08c, #04c);
+    background-image: -webkit-linear-gradient(top, #08c, #05c);
+    background-image: -o-linear-gradient(top, #08c, #05c);
+    background-image: linear-gradient(to bottom, #08c, #05c);
     background-repeat: repeat-x;
-    border-color: #04c #04c #002a80;
+    border-color: #05c #05c #002a80;
     border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff0088cc',endColorstr='#ff0044cc',GradientType=0);
     filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
 
     &:hover {
-      background: #04c;
+      background: #05c;
     }
     &:focus {
       background: #005bcc;
